@@ -1,5 +1,7 @@
 # sg
 
+A simple command-line utility for searching text using multiple search terms.
+
 > [!WARNING]
 > This project is a work in progress. Development happens whenever time and motivation allow.
 
