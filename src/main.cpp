@@ -662,7 +662,7 @@ class SearchApp {
 private:
     void setup(int argc, char** argv) {
         std::stringstream ss;
-        for (size_t i = 1; i < argc; i++) {
+        for (size_t i = 1; i < static_cast<size_t>(argc); i++) {
             if (i) {
                 ss << ' ';
             }
