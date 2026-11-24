@@ -1,5 +1,6 @@
-#define NOB_IMPLEMENTATION
+#include <stdlib.h>
 
+#define NOB_IMPLEMENTATION
 #include "nob.h"
 
 #define BUILD_FOLDER "build/"
@@ -9,16 +10,25 @@ int main(int argc, char **argv)
 {
     NOB_GO_REBUILD_URSELF(argc, argv);
 
-    if (!nob_mkdir_if_not_exists(BUILD_FOLDER)) return 1;
+    if (!nob_mkdir_if_not_exists(BUILD_FOLDER)) {
+        return 1;
+    }
+
+    const char *cxx = getenv("CXX");
+    if (!cxx || !*cxx) {
+        cxx = "c++";
+    }
 
     Nob_Cmd cmd = {0};
-    nob_cmd_append(&cmd, "c++",
+    nob_cmd_append(&cmd, cxx,
                    "-Wall", "-Wextra",
                    "-std=c++23",
                    "-o", BUILD_FOLDER"sg",
                    SRC_FOLDER"main.cpp");
 
-    if (!nob_cmd_run(&cmd)) return 1;
+    if (!nob_cmd_run(&cmd)) {
+        return 1;
+    }
 
     return 0;
 }
