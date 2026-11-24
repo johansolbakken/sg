@@ -626,7 +626,7 @@ public:
  * Main search app.
  */
 class SearchApp {
-    std::queue<Entry>       _iter{};
+    std::queue<Entry>       _file_queue{};
     Query                   _query{};
     std::string             _file_backing{};
     MatchInfo               _match_info{};
@@ -651,7 +651,7 @@ private:
 
     void add_children(const Entry& path) {
         for (const auto& entry : std::filesystem::directory_iterator(path.path())) {
-            _iter.emplace(entry);
+            _file_queue.emplace(entry);
         }
     }
 
@@ -717,11 +717,11 @@ public:
     int run(int argc, char** argv) {
         setup(argc, argv);
 
-        _iter.emplace(".");
+        _file_queue.emplace(".");
 
-        while (!_iter.empty()) {
-            auto entry = _iter.front();
-            _iter.pop();
+        while (!_file_queue.empty()) {
+            auto entry = _file_queue.front();
+            _file_queue.pop();
 
             if (!_filter.allow(entry.path().string(), entry.kind() == Entry::Kind::DIR)) {
                 continue;
