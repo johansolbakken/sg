@@ -66,28 +66,6 @@ public:
     [[nodiscard]] Path path() const noexcept { return _path; }
 };
 
-/**
- * Iterates over files in a file system.
- */
-class FileIter {
-    std::queue<Entry> _paths{};
-
-public:
-    FileIter() = default;
-    explicit FileIter(const Entry::Path& root) {
-        _paths.push(Entry(root));
-    }
-
-    [[nodiscard]] bool has_next() const noexcept { return !_paths.empty(); }
-    [[nodiscard]] const Entry& get() { return _paths.front(); }
-    void next() {
-        _paths.pop();
-    }
-    void add(const Entry::Path& path) {
-        _paths.push(Entry(path));
-    }
-};
-
 class Source {
     std::string_view    _text{};
     std::vector<size_t> _line_starts{};
@@ -648,7 +626,7 @@ public:
  * Main search app.
  */
 class SearchApp {
-    FileIter                _iter{};
+    std::queue<Entry>       _file_queue{};
     Query                   _query{};
     std::string             _file_backing{};
     MatchInfo               _match_info{};
@@ -673,7 +651,7 @@ private:
 
     void add_children(const Entry& path) {
         for (const auto& entry : std::filesystem::directory_iterator(path.path())) {
-            _iter.add(entry);
+            _file_queue.emplace(entry);
         }
     }
 
@@ -739,13 +717,13 @@ public:
     int run(int argc, char** argv) {
         setup(argc, argv);
 
-        _iter.add(".");
+        _file_queue.emplace(".");
 
-        while (_iter.has_next()) {
-            const auto& entry = _iter.get();
+        while (!_file_queue.empty()) {
+            auto entry = _file_queue.front();
+            _file_queue.pop();
 
             if (!_filter.allow(entry.path().string(), entry.kind() == Entry::Kind::DIR)) {
-                _iter.next();
                 continue;
             }
 
@@ -757,8 +735,6 @@ public:
                 handle_file(entry.path());
                 break;
             }
-
-            _iter.next();
         }
 
         return 0;
