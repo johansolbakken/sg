@@ -651,7 +651,7 @@ private:
 
     void add_children(const Entry& path) {
         for (const auto& entry : std::filesystem::directory_iterator(path.path())) {
-            _iter.push(Entry(entry));
+            _iter.emplace(entry);
         }
     }
 
@@ -717,7 +717,7 @@ public:
     int run(int argc, char** argv) {
         setup(argc, argv);
 
-        _iter.push(Entry("."));
+        _iter.emplace(".");
 
         while (!_iter.empty()) {
             auto entry = _iter.front();
