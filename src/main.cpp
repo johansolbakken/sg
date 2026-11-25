@@ -428,7 +428,7 @@ private:
             }
             if (is_ident()) {
                 size_t start = _i++;
-                while (is_ident()) {
+                while (!is_at_end() && is_ident()) {
                     _i++;
                 }
                 out = Token { Token::Kind::IDENT, _source.substr(start, _i - start) };
